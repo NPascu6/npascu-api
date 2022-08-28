@@ -9,7 +9,7 @@
     }
   },
   "profiles": {
-    "NETToDoDemo": {
+    "NPascuAPI": {
       "commandName": "Project",
       "launchBrowser": true,
       "launchUrl": "swagger",
