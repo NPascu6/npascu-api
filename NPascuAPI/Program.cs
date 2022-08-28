@@ -1,23 +1,12 @@
 using Microsoft.EntityFrameworkCore;
 using NPascuAPI.Contexts;
-
 var builder = WebApplication.CreateBuilder(args);
-var configurationBuilder = new ConfigurationBuilder()
-                            .SetBasePath(builder.Environment.ContentRootPath)
-                            .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-                            .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true)
-                            .AddEnvironmentVariables();
-
-builder.Configuration.AddConfiguration(configurationBuilder.Build());
-
-// Add services to the container.
 
 var defaultConnectionString = string.Empty;
 
-
 if (builder.Environment.EnvironmentName == "Development")
 {
-    defaultConnectionString = $"Host=localhost;Database=NorbiApiPostgres;Username=postgres;Password=postgres";
+    defaultConnectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 }
 else
 {
@@ -37,9 +26,14 @@ else
 }
 
 
-    builder.Services.AddDbContext<UserContext>(options =>
-options.UseNpgsql(defaultConnectionString));
+var configurationBuilder = new ConfigurationBuilder()
+                            .SetBasePath(builder.Environment.ContentRootPath)
+                            .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+                            .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true)
+                            .AddEnvironmentVariables();
 
+builder.Services.AddDbContext<UserContext>(options =>
+   options.UseNpgsql(defaultConnectionString));
 
 var serviceProvider = builder.Services.BuildServiceProvider();
 try
@@ -50,6 +44,8 @@ try
 catch
 {
 }
+// Add services to the container.
+builder.Configuration.AddConfiguration(configurationBuilder.Build());
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -58,12 +54,19 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseSwaggerUI(options =>
+{
+    options.SwaggerEndpoint("/swagger/v1/swagger.json", "v1");
+    options.RoutePrefix = string.Empty;
+});
 
 app.UseAuthorization();
 
