@@ -16,7 +16,6 @@ else
     connectionUrl = connectionUrl.Replace("postgres://", string.Empty);
     var userPassSide = connectionUrl.Split("@")[0];
     var hostSide = connectionUrl.Split("@")[1];
-
     var user = userPassSide.Split(":")[0];
     var password = userPassSide.Split(":")[1];
     var host = hostSide.Split("/")[0];
